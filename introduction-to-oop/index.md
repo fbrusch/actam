@@ -78,3 +78,8 @@ button.onclick = play
 
 We can of course gather all this code into a function, and generate as many play buttons as we want.
 
+## Exercises
+
+* Generate a "keyboard", made as `<button>`s, that allows to play any note in the octave starting from A4 (all the semitones)
+
+* (experimental!) Define a constructor to build objects that represent "virtual instruments": when instantiated, it creates an object, that contains some tweakable music parameters, and also an element that can be instantiated in the DOM (example: a button). Then it is possible to play the instrument from the interface, and to tweak it from javascript.
