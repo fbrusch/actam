@@ -1,10 +1,16 @@
 var canvas = document.querySelector("canvas");
 var ctx = canvas.getContext("2d");
 
-var object = {
-    position: {x: 30, y:30},
-    velocity: {x: 10, y:0}
+var synth = new Tone.Synth().toDestination()
 
+var c = new AudioContext();
+var o = c.createOscillator();
+o.connect(c.destination);
+//o.start()
+
+var object = {
+    position: {x: 50, y:30},
+    velocity: {x: 10, y:0}
 }
 
 function physics(time_elapsed) 
@@ -15,12 +21,15 @@ function physics(time_elapsed)
 
     // bounce on walls
     if(object.position.x + 100 > canvas.width) {
+        synth.triggerAttackRelease("C4","8n")
         object.velocity.x *= -1;
     }
     if(object.position.x < 0) {
+        synth.triggerAttackRelease("A3","8n")
         object.velocity.x *= -1;
     }
     if(object.position.y + 100 > canvas.height) {
+        synth.triggerAttackRelease("D4","8n")
         object.velocity.y *= -1;
         object.position.y = canvas.height - 100;
     }
@@ -28,7 +37,7 @@ function physics(time_elapsed)
         object.velocity.y *= -1;
     }
 
-    object.velocity.y += 5;
+    object.velocity.y += 0.5;
 }
 
 
@@ -37,6 +46,8 @@ function render() {
     ctx.beginPath();
     ctx.rect(object.position.x,object.position.y,100,100);
     ctx.stroke();
+    o.frequency.value = object.position.x;
+    o.detune.value = object.position.y;
 }
 
 function update() {
