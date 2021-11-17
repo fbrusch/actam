@@ -7,7 +7,7 @@ var recordBuffer = c.createBuffer(1, recording_length*c.sampleRate,
 
 var bindex = 0;
 
-var pn;
+var pn, mss;
 
 async function main() {
     var stream = await navigator.mediaDevices.getUserMedia({audio:true})
@@ -31,3 +31,21 @@ async function main() {
 }
 
 main()
+
+const canvas = document.querySelector("canvas");
+ctx = canvas.getContext("2d");
+
+function drawBuffer() {
+    ctx.beginPath();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.moveTo(0,canvas.height/2);
+    dataIn = recordBuffer.getChannelData(0)
+    step = recordBuffer.length/canvas.width;
+    for(var i=0;i<canvas.width;i++) {
+        ctx.lineTo(i, 
+            canvas.height/2+400*dataIn[Math.round(i*step)])};
+    ctx.stroke();
+    window.requestAnimationFrame(drawBuffer)
+}
+
+drawBuffer()
