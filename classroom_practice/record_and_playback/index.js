@@ -8,13 +8,14 @@ var recordBuffer = c.createBuffer(1, recording_length*c.sampleRate,
 var bindex = 0;
 
 var pn, mss;
-
+var recording = true;
 async function main() {
     var stream = await navigator.mediaDevices.getUserMedia({audio:true})
     var mss = c.createMediaStreamSource(stream);
     //mss.connect(c.destination)
     pn = c.createScriptProcessor(1024, 1,1);
     pn.onaudioprocess = function(event) {
+        if(recording == false) {return}
         const dataIn = event.inputBuffer.getChannelData(0);
         var recordBufferData = recordBuffer.getChannelData(0);
         for(var i=0;i < dataIn.length; i++) {
@@ -44,8 +45,33 @@ function drawBuffer() {
     for(var i=0;i<canvas.width;i++) {
         ctx.lineTo(i, 
             canvas.height/2+400*dataIn[Math.round(i*step)])};
+    
+    markPosition = Math.round((bindex % recordBuffer.length)/step)
+    ctx.moveTo(markPosition, 0)
+    ctx.lineTo(markPosition, canvas.height)
     ctx.stroke();
+
+    
+
+
     window.requestAnimationFrame(drawBuffer)
 }
 
 drawBuffer()
+
+function playSlice(start, end, playbackRate) {
+    var playBuffer = c.createBuffer(1, 
+        Math.round((end-start)*c.sampleRate), c.sampleRate);
+    var playData = playBuffer.getChannelData(0);
+    var dataIn = recordBuffer.getChannelData(0);
+    startSample = Math.round(start*c.sampleRate)
+    endSample = Math.round(end*c.sampleRate)
+    for(var i=startSample; i < endSample; i++) {
+        playData[i-startSample] = dataIn[i];
+    }
+    const bufferSource = c.createBufferSource();
+    bufferSource.buffer = playBuffer;
+    bufferSource.connect(c.destination)
+    bufferSource.start()
+    bufferSource.playbackRate.value = playbackRate
+}
