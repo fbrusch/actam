@@ -28,6 +28,9 @@ async function main() {
     mss.connect(pn)
     pn.connect(c.destination)
 
+    midi = await navigator.requestMIDIAccess();
+    midi.inputs.forEach((i) => i.onmidimessage = handleMidi)
+
 
 }
 
@@ -36,7 +39,10 @@ main()
 const canvas = document.querySelector("canvas");
 ctx = canvas.getContext("2d");
 
+var midi;
 function drawBuffer() {
+    ctx.strokeStyle = "#000000";
+    
     ctx.beginPath();
     ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.moveTo(0,canvas.height/2);
@@ -51,10 +57,45 @@ function drawBuffer() {
     ctx.lineTo(markPosition, canvas.height)
     ctx.stroke();
 
+    // draw slice bounds
+
+    ctx.beginPath()
+    ctx.strokeStyle = "#00FF00";
+    var start = startSlice/128*canvas.width;
+    var end = endSlice/128*canvas.width;
+    ctx.moveTo(start,0);
+    ctx.lineTo(start, canvas.height)
+    ctx.moveTo(end,0);
+    ctx.lineTo(end, canvas.height)
+    ctx.stroke()
+    
+
+
     
 
 
     window.requestAnimationFrame(drawBuffer)
+
+
+}
+
+var startSlice;
+var endSlice;
+
+function handleMidi(e) {
+    console.log(e)
+    c.resume()
+    if(e.data[0] == 176) {
+        if(e.data[1] == 14) {
+            startSlice = e.data[2];
+        }
+        if(e.data[1] == 15) {
+            endSlice = e.data[2];
+        }
+    } else if(e.data[0] == 144) {
+        playSlice(startSlice/128*recording_length, endSlice/128*recording_length,
+            Math.pow(2,(e.data[1]-48)/12))
+    }
 }
 
 drawBuffer()
@@ -75,3 +116,6 @@ function playSlice(start, end, playbackRate) {
     bufferSource.start()
     bufferSource.playbackRate.value = playbackRate
 }
+
+
+
