@@ -1,0 +1,26 @@
+.pad {
+    height:50px;
+    width:50px;
+    border: 1px solid black;
+    display: inline-block;
+    margin: 3px;
+}
+
+@keyframes beat {
+    from {transform: rotate(0deg);}
+    to {transform: rotate(90deg);}
+}
+
+.pad.active {
+    background-color: red;
+}
+
+.pad.active.beat {
+    background-color: green;
+    animation-name: beat;
+    animation-duration: 0.5s;
+}
+
+.pad.beat {
+    background-color: yellow;
+}
